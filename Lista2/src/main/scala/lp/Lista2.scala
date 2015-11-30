@@ -7,6 +7,7 @@ object Lista2 extends App {
   val pares: Conjunto[Int] = (x: Int) => (x % 2) == 0
   val impares: Conjunto[Int] = (x: Int) => (x % 2) == 1
   val multiplos3: Conjunto[Int] = (x: Int) => (x % 3) == 0
+  val umEDois: Conjunto[Int] = (x: Int) => x == 1 || x == 2
   
   println(contem(pares, 1))
   println(contem(pares, 6))

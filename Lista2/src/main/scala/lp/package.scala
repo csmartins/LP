@@ -9,7 +9,7 @@ package object lp {
   def intersecao[T](c1: Conjunto[T], c2: Conjunto[T]): Conjunto[T] = (elem: T) => contem(c1, elem) && contem(c2, elem)
   def diferenca[T](c1: Conjunto[T], c2: Conjunto[T]): Conjunto[T] = (elem: T) => contem(c1, elem) && !contem(c2, elem)
   def filtro[T](c: Conjunto[T], f: T => Boolean): Conjunto[T] = (elem: T) => contem(c, elem) && f(elem)
-  def map[T, U](c: Conjunto[T], f: U => T): Conjunto[U] = ???	
+  def map[T, U](c: Conjunto[T], f: U => T): Conjunto[U] = (elem: U)	=> contem(c, f(elem))
   
   trait ConjInt {
     def contem(x: Int): Boolean = ???
