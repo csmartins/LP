@@ -12,12 +12,47 @@ package object lp {
   def map[T, U](c: Conjunto[T], f: U => T): Conjunto[U] = (elem: U)	=> contem(c, f(elem))
   
   trait ConjInt {
-    def contem(x: Int): Boolean = ???
-    def insere(x: Int): ConjInt = ???
-    def uniao(outro: ConjInt): ConjInt = ???
+    def contem(x: Int): Boolean = this match {
+      case ConjVazio() => false
+      case ConjCons(elem, esq, dir) => x == elem || esq.contem(x) || dir.contem(x) 
+    }
+    
+    def insere(x: Int): ConjInt = this match {
+      case ConjVazio() => ConjCons(x, ConjVazio(), ConjVazio())
+      case ConjCons(elem, esq, dir) => (esq, dir) match { 
+        case (ConjVazio(), ConjVazio()) => ConjCons(elem, ConjCons(x, ConjVazio(), ConjVazio()), ConjVazio())
+        case (ConjVazio(), ConjCons(_, _, _)) => ConjCons(elem, ConjCons(x, ConjVazio(), ConjVazio()), dir)
+        case (ConjCons(_, _, _), ConjVazio()) => ConjCons(elem, esq, ConjCons(x, ConjVazio(), ConjVazio()))
+        case (ConjCons(_, _, _), ConjCons(_, _, _)) => ConjCons(elem, esq.insere(x), dir)
+      }
+    }
+    def uniao(outro: ConjInt): ConjInt = outro match {
+      case ConjVazio() => this
+      case ConjCons(elem, ConjVazio(), ConjVazio()) => this.insere(elem)
+      case ConjCons(elem, esq, dir) => this.uniao(esq).uniao(dir) 
+    }
 
-    def filter(p: Int => Boolean): ConjInt = ???
-    def map(f: Int => Int): ConjInt = ???
+    def filter(p: Int => Boolean): ConjInt = {
+      def loop(aux: ConjInt)= this match {
+        case ConjVazio() => ConjVazio()
+        case ConjCons(elem, esq, dir) => if(p(elem)) aux.insere(elem).uniao(esq.filter(p)).uniao(dir.filter(p))
+                                         else aux.uniao(esq.filter(p)).uniao(dir.filter(p))
+      }
+      loop(ConjVazio())
+    }
+    
+    def map(f: Int => Int): ConjInt = {
+      def loop(aux: ConjInt)= this match {
+        case ConjVazio() => ConjVazio()
+        case ConjCons(elem, esq, dir) => aux.insere(elem).uniao(esq.map(f)).uniao(dir.map(f))
+      }
+      loop(ConjVazio())
+    }
+    
+    val arv = ConjCons(1, 
+        ConjCons(2, ConjCons(4, ConjVazio(), ConjVazio()), ConjCons(5, ConjVazio(), ConjVazio())), 
+        ConjCons(3, ConjCons(6, ConjVazio(), ConjVazio()), ConjVazio()))
+      
     def flatMap(f: Int => ConjInt): ConjInt = ???
   }
   case class ConjVazio() extends ConjInt
