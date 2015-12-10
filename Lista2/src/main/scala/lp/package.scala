@@ -44,7 +44,7 @@ package object lp {
     def map(f: Int => Int): ConjInt = {
       def loop(aux: ConjInt)= this match {
         case ConjVazio() => ConjVazio()
-        case ConjCons(elem, esq, dir) => aux.insere(elem).uniao(esq.map(f)).uniao(dir.map(f))
+        case ConjCons(elem, esq, dir) => aux.insere(f(elem)).uniao(esq.map(f)).uniao(dir.map(f))
       }
       loop(ConjVazio())
     }
@@ -53,7 +53,13 @@ package object lp {
         ConjCons(2, ConjCons(4, ConjVazio(), ConjVazio()), ConjCons(5, ConjVazio(), ConjVazio())), 
         ConjCons(3, ConjCons(6, ConjVazio(), ConjVazio()), ConjVazio()))
       
-    def flatMap(f: Int => ConjInt): ConjInt = ???
+    def flatMap(f: Int => ConjInt): ConjInt = {
+      def loop(aux: ConjInt)= this match {
+        case ConjVazio() => ConjVazio()
+        case ConjCons(elem, esq, dir) => aux.uniao(f(elem)).uniao(esq.flatMap(f)).uniao(dir.flatMap(f))
+      }
+      loop(ConjVazio())
+    }
   }
   case class ConjVazio() extends ConjInt
   case class ConjCons(elem: Int, esq: ConjInt, dir: ConjInt) extends ConjInt
