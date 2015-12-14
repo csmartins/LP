@@ -15,19 +15,28 @@ package object lp {
   }yield Var(nome)) +: (for {
     _ <- op("(")
     e <- ExpCL
-    - <- op(")")
+    _ <- op(")")
   }yield e) +: (for {
-    _ <- op("||")
+    _ <- op("\\")
     (param, _) <- id
     _ <- op(".")
     corpo <- ExpCL
   }yield Abs(param, corpo))
   
+  //avaliacao sem checagem de variaveis livres
   def eval(e: CL): Abs = e match {
+    //o valor de uma abstração é ela mesma;
     case Abs(param, corpo) => Abs(param, corpo)
+    //para obter o valor de uma aplicação
     case Ap(fun, arg) => {
+      
+      //obtemos o valor do seu lado esquerdo (que deverá ser uma abstração, ou a aplicação é indefinida)
       val Abs(param, corpo) = eval(fun)
+      
+      //e seu lado direito
       val varg = eval(arg)
+      
+      //substituimos o parametro do lado esquerdo pelo valor do lado direito no corpo e avaliamos o resultado
       eval(subst(param, varg, corpo))
     }
   }
