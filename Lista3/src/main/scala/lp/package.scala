@@ -3,8 +3,17 @@ import parser._
 package object lp {
   trait CL
   case class Var(nome: String) extends CL
-  case class Ap(funcao: CL, argumento: CL) extends CL
-  case class Abs(parametro: String, corpo: CL) extends CL
+  case class Ap(fun: CL, arg: CL) extends CL
+  case class Abs(param: String, corpo: CL) extends CL
+  
+  val eof: Parser[Unit] = not(pred(c => true), ())
+  
+  def ProgCL: Parser[CL] = for 
+  {
+    e <- ExpCL
+    _ <- space
+    _ <- eof
+  } yield e;
   
   //EXP  -> AEXP {AEXP}
   def ExpCL: Parser[CL] = chainl(AExpCL, empty(Ap), AExpCL)
@@ -65,6 +74,13 @@ package object lp {
   def step_cbn(e: CL): CL = e match {
     case Ap(Abs(param, corpo), a) => subst(param, a, corpo)
     case Ap(f, a) => Ap(step(f), a)
+  }
+  
+  def fv(e: CL): Set[String] = e match {
+    case Var(x) => Set(x)
+    case Abs(param, corpo) => fv(corpo).-(param)
+    case Ap(fun, arg) => fv(fun).++(fv(arg))
+    case _ => Set()
   }
   
 }
